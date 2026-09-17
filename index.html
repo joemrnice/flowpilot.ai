@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlowPilot AI — Work Command Center</title>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            },
+            darkBg: '#0b0f17',
+            darkCard: '#131926',
+            darkBorder: '#1f293d',
+            darkHover: '#1c2436',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- SortableJS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+  <!-- Flatpickr CSS & JS CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  <!-- App Custom Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-darkBg dark:text-gray-100 font-sans antialiased selection:bg-brand-500 selection:text-white transition-colors duration-200 min-h-screen flex flex-col">
+
+  <div id="app-wrapper" class="flex flex-1 h-screen overflow-hidden">
+    <!-- Left Navigation Sidebar -->
+    <aside id="sidebar" class="w-64 bg-white dark:bg-darkCard border-r border-gray-200 dark:border-darkBorder flex flex-col transition-all duration-300 z-30 select-none">
+      <!-- App Brand Header -->
+      <div class="h-16 flex items-center justify-between px-5 border-b border-gray-200 dark:border-darkBorder">
+        <a href="#" class="flex items-center gap-3 group">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 via-indigo-500 to-purple-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+          </div>
+          <div class="sidebar-text flex flex-col">
+            <span class="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-brand-600 to-indigo-600 dark:from-white dark:via-indigo-300 dark:to-indigo-500">FlowPilot</span>
+            <span class="text-[10px] uppercase font-mono font-bold tracking-widest text-brand-600 dark:text-brand-400">AI Command Center</span>
+          </div>
+        </a>
+        <button id="toggle-sidebar-btn" title="Toggle Sidebar" class="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-darkHover transition-colors">
+          <i data-lucide="panel-left-close" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Command Bar Direct Trigger -->
+      <div class="p-3">
+        <button id="quick-command-btn" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-darkHover dark:hover:bg-gray-800/80 border border-gray-200/60 dark:border-darkBorder text-left transition-all group">
+          <div class="flex items-center gap-2.5 text-gray-600 dark:text-gray-300">
+            <i data-lucide="command" class="w-4 h-4 text-brand-500 group-hover:scale-110 transition-transform"></i>
+            <span class="sidebar-text text-xs font-medium">Command Palette</span>
+          </div>
+          <kbd class="sidebar-text font-mono text-[10px] bg-white dark:bg-darkBg text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded border border-gray-200 dark:border-darkBorder shadow-sm">⌘K</kbd>
+        </button>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="flex-1 px-3 py-2 space-y-1 overflow-y-auto custom-scrollbar">
+        <a href="#dashboard" class="nav-link active flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all" data-view="dashboard">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          <span class="sidebar-text">Dashboard</span>
+        </a>
+
+        <a href="#ai-assistant" class="nav-link flex items-center justify-between px-3 py-2.5 rounded-xl font-medium text-sm transition-all text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-500/10 hover:bg-brand-100/50 dark:hover:bg-brand-500/20 border border-brand-200/50 dark:border-brand-500/20" data-view="ai-assistant">
+          <div class="flex items-center gap-3">
+            <i data-lucide="bot" class="w-4 h-4"></i>
+            <span class="sidebar-text font-semibold">AI Assistant</span>
+          </div>
+          <span class="sidebar-text flex h-2 w-2 relative">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
+          </span>
+        </a>
+
+        <a href="#tasks" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all" data-view="tasks">
+          <i data-lucide="check-square" class="w-4 h-4"></i>
+          <span class="sidebar-text">My Tasks</span>
+          <span id="nav-task-count" class="sidebar-text ml-auto text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-darkHover text-gray-600 dark:text-gray-400">8</span>
+        </a>
+
+        <a href="#projects" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all" data-view="projects">
+          <i data-lucide="folder-kanban" class="w-4 h-4"></i>
+          <span class="sidebar-text">Projects</span>
+        </a>
+
+        <a href="#calendar" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all" data-view="calendar">
+          <i data-lucide="calendar" class="w-4 h-4"></i>
+          <span class="sidebar-text">Calendar</span>
+        </a>
+
+        <a href="#notes" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all" data-view="notes">
+          <i data-lucide="notebook-pen" class="w-4 h-4"></i>
+          <span class="sidebar-text">Notes</span>
+        </a>
+
+        <a href="#documents" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all" data-view="documents">
+          <i data-lucide="file-text" class="w-4 h-4"></i>
+          <span class="sidebar-text">Documents</span>
+        </a>
+
+        <a href="#analytics" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all" data-view="analytics">
+          <i data-lucide="line-chart" class="w-4 h-4"></i>
+          <span class="sidebar-text">Analytics</span>
+        </a>
+
+        <div class="pt-4 mt-4 border-t border-gray-200 dark:border-darkBorder">
+          <a href="#settings" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all" data-view="settings">
+            <i data-lucide="settings" class="w-4 h-4"></i>
+            <span class="sidebar-text">Settings</span>
+          </a>
+        </div>
+      </nav>
+
+      <!-- User Profile Widget -->
+      <div class="p-3 border-t border-gray-200 dark:border-darkBorder">
+        <div class="flex items-center gap-3 p-2 rounded-xl bg-gray-50 dark:bg-darkHover/60 border border-gray-200/60 dark:border-darkBorder">
+          <img id="user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" alt="Alex Vance" class="w-9 h-9 rounded-full object-cover ring-2 ring-brand-500/30">
+          <div class="sidebar-text flex flex-col min-w-0">
+            <span id="user-name" class="text-xs font-semibold truncate text-gray-900 dark:text-gray-100">Alex Vance</span>
+            <span id="user-role" class="text-[10px] text-gray-500 dark:text-gray-400 truncate">Lead Product Designer</span>
+          </div>
+          <button id="theme-toggle-btn" title="Toggle Theme" class="sidebar-text ml-auto p-1.5 rounded-lg text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-darkCard transition-colors">
+            <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+            <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-gray-50/50 dark:bg-darkBg">
+      <!-- Top Navigation Header -->
+      <header class="h-16 bg-white/80 dark:bg-darkCard/80 backdrop-blur-md border-b border-gray-200 dark:border-darkBorder px-6 flex items-center justify-between z-20 sticky top-0">
+        <!-- View Title & Breadcrumb -->
+        <div class="flex items-center gap-4">
+          <button id="mobile-sidebar-toggle" class="md:hidden text-gray-600 dark:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-darkHover">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+          <div>
+            <h1 id="view-title" class="text-lg font-bold text-gray-900 dark:text-white tracking-tight">Dashboard</h1>
+            <p id="view-subtitle" class="text-xs text-gray-500 dark:text-gray-400">Personal productivity & AI command hub</p>
+          </div>
+        </div>
+
+        <!-- Global Search & Header Actions -->
+        <div class="flex items-center gap-3">
+          <!-- Global Search Input -->
+          <div class="relative hidden sm:block w-64 md:w-80">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input id="global-search-input" type="text" placeholder="Search tasks, notes, documents or ask AI..." class="w-full bg-gray-100 dark:bg-darkHover text-xs pl-9 pr-8 py-2 rounded-xl border border-transparent focus:border-brand-500 dark:focus:border-brand-500 focus:bg-white dark:focus:bg-darkCard outline-none transition-all">
+            <kbd class="font-mono text-[10px] text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 bg-white dark:bg-darkBg px-1.5 py-0.5 rounded border border-gray-200 dark:border-darkBorder">⌘K</kbd>
+          </div>
+
+          <!-- Quick AI Assistant Drawer Toggle Button -->
+          <button id="open-floating-ai-btn" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white font-medium text-xs shadow-md shadow-brand-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+            <span class="hidden md:inline">Ask AI Command</span>
+          </button>
+
+          <!-- Notifications Dropdown Trigger -->
+          <div class="relative">
+            <button id="notifications-btn" class="p-2 rounded-xl text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-darkHover transition-colors relative">
+              <i data-lucide="bell" class="w-5 h-5"></i>
+              <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-brand-500 ring-2 ring-white dark:ring-darkCard"></span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- View Container Workspace -->
+      <div id="view-container" class="flex-1 overflow-y-auto p-6 custom-scrollbar relative">
+        <!-- Dynamic view content injected here by router/view scripts -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Command Palette Modal (⌘K) -->
+  <div id="command-palette-modal" class="fixed inset-0 bg-gray-900/60 dark:bg-black/70 backdrop-blur-sm z-50 flex items-start justify-center pt-20 px-4 hidden transition-opacity duration-200">
+    <div class="bg-white dark:bg-darkCard border border-gray-200 dark:border-darkBorder rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col transform transition-all scale-95 opacity-0 duration-200" id="command-palette-card">
+      <div class="p-4 border-b border-gray-200 dark:border-darkBorder flex items-center gap-3">
+        <i data-lucide="sparkles" class="w-5 h-5 text-brand-500 animate-pulse"></i>
+        <input id="command-palette-input" type="text" placeholder="Type a command, search tasks, or ask FlowPilot AI..." class="w-full text-base bg-transparent border-none outline-none text-gray-900 dark:text-white placeholder-gray-400 font-medium">
+        <kbd class="font-mono text-xs text-gray-400 bg-gray-100 dark:bg-darkHover px-2 py-1 rounded">ESC</kbd>
+      </div>
+      <div id="command-palette-results" class="max-h-96 overflow-y-auto p-3 space-y-1 custom-scrollbar">
+        <!-- AI Prompt Quick Suggestions -->
+        <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider px-3 pt-2 pb-1">AI Prompt Suggestions</div>
+        <button class="cmd-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-brand-50 dark:hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-300 text-left text-xs font-medium transition-colors" data-cmd="Plan my day.">
+          <div class="flex items-center gap-2.5">
+            <i data-lucide="sun" class="w-4 h-4 text-amber-500"></i>
+            <span>"Plan my day."</span>
+          </div>
+          <span class="text-[10px] text-gray-400 font-mono">AI Command</span>
+        </button>
+        <button class="cmd-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-brand-50 dark:hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-300 text-left text-xs font-medium transition-colors" data-cmd="Summarize my projects.">
+          <div class="flex items-center gap-2.5">
+            <i data-lucide="folder-kanban" class="w-4 h-4 text-indigo-500"></i>
+            <span>"Summarize my projects."</span>
+          </div>
+          <span class="text-[10px] text-gray-400 font-mono">AI Command</span>
+        </button>
+        <button class="cmd-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-brand-50 dark:hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-300 text-left text-xs font-medium transition-colors" data-cmd="Show overdue work.">
+          <div class="flex items-center gap-2.5">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-rose-500"></i>
+            <span>"Show overdue work."</span>
+          </div>
+          <span class="text-[10px] text-gray-400 font-mono">AI Command</span>
+        </button>
+        <button class="cmd-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-brand-50 dark:hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-300 text-left text-xs font-medium transition-colors" data-cmd="Prepare a weekly progress report.">
+          <div class="flex items-center gap-2.5">
+            <i data-lucide="file-bar-chart" class="w-4 h-4 text-emerald-500"></i>
+            <span>"Prepare a weekly progress report."</span>
+          </div>
+          <span class="text-[10px] text-gray-400 font-mono">AI Command</span>
+        </button>
+
+        <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider px-3 pt-4 pb-1">Navigation</div>
+        <button class="cmd-item w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-darkHover text-left text-xs font-medium transition-colors" data-nav="tasks">
+          <i data-lucide="check-square" class="w-4 h-4 text-gray-400"></i>
+          <span>Go to Tasks Kanban</span>
+        </button>
+        <button class="cmd-item w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-darkHover text-left text-xs font-medium transition-colors" data-nav="documents">
+          <i data-lucide="file-text" class="w-4 h-4 text-gray-400"></i>
+          <span>Go to Documents Analyzer</span>
+        </button>
+        <button class="cmd-item w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-darkHover text-left text-xs font-medium transition-colors" data-nav="analytics">
+          <i data-lucide="line-chart" class="w-4 h-4 text-gray-400"></i>
+          <span>Go to Productivity Analytics</span>
+        </button>
+      </div>
+      <div class="p-3 border-t border-gray-200 dark:border-darkBorder bg-gray-50/50 dark:bg-darkHover/30 flex items-center justify-between text-[11px] text-gray-400">
+        <span>Use <kbd class="font-mono bg-white dark:bg-darkBg px-1 rounded">↑</kbd> <kbd class="font-mono bg-white dark:bg-darkBg px-1 rounded">↓</kbd> to navigate</span>
+        <span><kbd class="font-mono bg-white dark:bg-darkBg px-1 rounded">Enter</kbd> to select</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating AI Assistant Drawer (Global Sidebar Panel) -->
+  <aside id="floating-ai-drawer" class="fixed right-0 top-0 h-screen w-full sm:w-96 bg-white dark:bg-darkCard border-l border-gray-200 dark:border-darkBorder shadow-2xl z-40 transform translate-x-full transition-transform duration-300 flex flex-col">
+    <!-- Drawer Header -->
+    <div class="h-16 px-5 border-b border-gray-200 dark:border-darkBorder flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-7 h-7 rounded-lg bg-brand-600 flex items-center justify-center text-white">
+          <i data-lucide="bot" class="w-4 h-4"></i>
+        </div>
+        <span class="font-semibold text-sm">FlowPilot Assistant</span>
+      </div>
+      <button id="close-floating-ai-btn" class="text-gray-400 hover:text-gray-600 dark:hover:text-white p-1 rounded-lg">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Drawer Messages Workspace -->
+    <div id="floating-ai-messages" class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+      <!-- AI Welcome Message -->
+      <div class="flex gap-3">
+        <div class="w-7 h-7 rounded-lg bg-brand-500/20 text-brand-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+        </div>
+        <div class="flex-1 bg-gray-100 dark:bg-darkHover/80 p-3 rounded-2xl text-xs space-y-2 leading-relaxed">
+          <p class="font-medium text-gray-900 dark:text-gray-100">Hi Alex, I'm your AI productivity co-pilot. How can I assist you right now?</p>
+          <div class="flex flex-wrap gap-1.5 pt-1">
+            <button class="quick-ai-suggest text-[10px] bg-white dark:bg-darkCard border border-gray-200 dark:border-darkBorder px-2 py-1 rounded-lg hover:border-brand-500 transition-colors" data-prompt="Plan my day.">Plan my day</button>
+            <button class="quick-ai-suggest text-[10px] bg-white dark:bg-darkCard border border-gray-200 dark:border-darkBorder px-2 py-1 rounded-lg hover:border-brand-500 transition-colors" data-prompt="Show overdue work.">Show overdue work</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drawer Input Area -->
+    <div class="p-4 border-t border-gray-200 dark:border-darkBorder bg-white dark:bg-darkCard">
+      <form id="floating-ai-form" class="flex gap-2">
+        <input id="floating-ai-input" type="text" placeholder="Ask AI to plan, draft task, summarize..." class="flex-1 bg-gray-100 dark:bg-darkHover text-xs px-3 py-2.5 rounded-xl border border-transparent focus:border-brand-500 outline-none">
+        <button type="submit" class="p-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl transition-colors">
+          <i data-lucide="send" class="w-4 h-4"></i>
+        </button>
+      </form>
+    </div>
+  </aside>
+
+  <!-- Global Toast Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Application Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/mockApi.js"></script>
+  <script src="js/aiEngine.js"></script>
+  <script src="js/commandPalette.js"></script>
+  <script src="js/aiFloating.js"></script>
+
+  <!-- View Controllers -->
+  <script src="js/views/dashboard.js"></script>
+  <script src="js/views/aiAssistant.js"></script>
+  <script src="js/views/tasks.js"></script>
+  <script src="js/views/projects.js"></script>
+  <script src="js/views/calendar.js"></script>
+  <script src="js/views/notes.js"></script>
+  <script src="js/views/documents.js"></script>
+  <script src="js/views/analytics.js"></script>
+  <script src="js/views/settings.js"></script>
+
+  <!-- Main App Gateway -->
+  <script src="js/app.js"></script>
+</body>
+</html>
